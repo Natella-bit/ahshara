@@ -1,0 +1,384 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Users, Calendar, BookOpen, ChevronDown, Book, Phone, Mail, Clock, MapPin, Award
+} from 'lucide-react';
+
+const syllabusData = [
+  {
+    day: 1,
+    date: '1.12.26',
+    title: 'יום הדרכה 1: תפקיד, חוק וזכויות',
+    lectures: [
+      { time: '08:00-09:30', subject: 'הגדרת תפקיד וגבולות עיסוק, חוק זכויות החולה, שמירת סודיות רפואית', instructor: 'סימה אליהו', role: 'מרכזת הדרכה ופיתוח מקצועי', hasGlossary: true, topic: 'חוק זכויות החולה' },
+      { time: '09:30-09:45', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '09:45-11:15', subject: 'כללים במתן שירות למטופל', instructor: 'קטי גרשט', role: '' },
+      { time: '11:15-11:30', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '11:30-13:00', subject: 'רב תרבותיות', instructor: 'ד"ר ליאורה', role: '' },
+      { time: '13:00-13:30', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '13:30-15:00', subject: 'תקשורת בין מטופלים ומטפלים, אוכלוסיות בסיכון', instructor: 'ד"ר ליאורה', role: '' }
+    ]
+  },
+  {
+    day: 2,
+    date: '8.12.26',
+    title: 'יום הדרכה 2: בטיחות והתמודדות',
+    lectures: [
+      { time: '08:00-09:30', subject: 'בטיחות המטפל: חשיפה לדם ונוזלי גוף, אירוע דקירה, טיפול במטופל בבידוד', instructor: 'מרים / שיבלי', role: 'יחידה למניעת זיהומים', hasGlossary: true, topic: 'בטיחות המטפל' },
+      { time: '09:30-09:45', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '09:45-11:15', subject: 'ניהול סיכונים ובטיחות הטיפול', instructor: 'עדי אפוטה', role: 'ניהול סיכונים' },
+      { time: '11:15-11:30', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '11:30-12:15', subject: 'בטיחות המטפל: יציבה נכונה', instructor: 'עופרה כהן', role: 'פיזיותרפיה' },
+      { time: '12:15-13:00', subject: 'התנהגות בשעת חירום', instructor: 'עופרה כהן', role: '' },
+      { time: '13:00-13:30', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '13:30-14:15', subject: 'מניעת אלימות והטרדה מינית', instructor: 'רחל לוי', role: '' },
+      { time: '14:15-15:00', subject: 'התמודדות עם אובדן ומוות', instructor: 'רוני להב', role: 'עוסי"ת' }
+    ]
+  },
+  {
+    day: 3,
+    date: '22.12.26',
+    title: 'יום הדרכה 3: היגיינה והזנה',
+    lectures: [
+      { time: '08:00-09:30', subject: 'היגיינה אישית, רחצה וטיפול פה. הזנת מטופל דרך הפה/דרך גסטרוסטום (ידע בלבד)', instructor: 'מלי שלוי', role: 'הדרכה קלינית', hasGlossary: true, topic: 'היגיינה אישית' },
+      { time: '09:30-09:45', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '09:45-11:15', subject: 'הכרת סוגי הזנה/דיאטות', instructor: 'דנה ארדנברג', role: 'תזונאית' },
+      { time: '11:15-11:30', subject: 'הכרת סוגי הדיאטות IDDSI', instructor: 'דנה ארדנברג', role: '' },
+      { time: '11:30-13:00', subject: 'טיפול במזון - היגיינה, הזמנה וחלוקה', instructor: 'דנה ארדנברג', role: '' },
+      { time: '13:00-13:30', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '13:30-15:00', subject: 'טיפול בהפרשות - שתן, זונדה, סטומה. החלפת שקית (קטטר/זונדה)', instructor: 'מלי שלוי', role: 'הדרכה קלינית' }
+    ]
+  },
+  {
+    day: 4,
+    date: '29.12.26',
+    title: 'יום הדרכה 4: ניידות ומדדים',
+    lectures: [
+      { time: '08:00-09:30', subject: 'טיפול בנפטר. הליכה, השכבה, הורדה והושבה. שימוש באמצעי עזר לניידות, שינויי תנוחה', instructor: 'מלי שלוי', role: 'הדרכה קלינית' },
+      { time: '09:30-09:45', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '09:45-11:15', subject: 'א.ק.ג, סימנים חיוניים, משקל וגובה. בדיקת רמת סוכר באמצעות גלוקומטר', instructor: 'איילת זעירא להב', role: '', hasGlossary: true, topic: 'סימנים חיוניים' },
+      { time: '11:15-11:30', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '11:30-13:00', subject: 'א.ק.ג וגלוקומטר - המשך תרגול', instructor: 'איילת זעירא להב', role: '' },
+      { time: '13:00-13:30', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '13:30-15:00', subject: 'דיווח ותיעוד לאחות המוסמכת', instructor: 'איילת זעירא להב', role: '' }
+    ]
+  },
+  {
+    day: 5,
+    date: '5.1.27',
+    title: 'יום הדרכה 5: סביבת המטופל וסיכום',
+    lectures: [
+      { time: '08:00-09:30', subject: 'הכנת ותחזוק יחידת מטופל', instructor: 'מלי', role: '' },
+      { time: '09:30-09:45', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '09:45-11:15', subject: 'טיפול ותחזוקת ציוד רפואי', instructor: 'עלאא אליאס', role: 'הנדסה רפואית' },
+      { time: '11:15-11:30', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '11:30-13:00', subject: 'חיטוי וניקוי מיכשור רפואי', instructor: 'מרים / שיבלי', role: 'מניעת זיהומים' },
+      { time: '13:00-13:30', subject: 'הפסקה', instructor: '', isBreak: true },
+      { time: '13:30-15:00', subject: 'סיכום ההכשרה + העברת משוב', instructor: 'סימה ועדי', role: 'הנהלת האחיות' }
+    ]
+  }
+];
+
+const glossaryData = {
+  'חוק זכויות החולה': [
+    { term: 'זכויות החולה', def: 'חוק המגדיר את זכויותיו של אדם המבקש טיפול רפואי או המקבל טיפול רפואי, תוך שמירה על כבודו ופרטיותו.' },
+    { term: 'סודיות רפואית', def: 'החובה לשמור בסוד כל מידע הנוגע למטופל שהגיע לצוות המטפל במהלך מילוי תפקידו.' }
+  ],
+  'בטיחות המטפל': [
+    { term: 'חשיפה לדם ונוזלי גוף', def: 'מצב בו איש צוות נחשף לדם או נוזלי גוף של מטופל, דורש דיווח וטיפול מיידי לפי נוהל למניעת הדבקה.' },
+    { term: 'בידוד מגע', def: 'אמצעי זהירות הננקטים כאשר מטופל נושא חיידק עמיד, מחייב לבישת כפפות וחלוק בכניסה לחדר.' }
+  ],
+  'היגיינה אישית': [
+    { term: 'רחצה במיטה', def: 'ניקוי גופו של מטופל המרותק למיטתו, תוך שמירה על פרטיותו, חום גופו ובטיחותו.' },
+    { term: 'גסטרוסטום (PEG)', def: 'צינור הזנה המוחדר ישירות לקיבה דרך דופן הבטן, משמש מטופלים שאינם יכולים לבלוע מזון.' }
+  ],
+  'סימנים חיוניים': [
+    { term: 'א.ק.ג (ECG)', def: 'רישום הפעילות החשמלית של הלב, בדיקה לא פולשנית המשמשת להערכת תקינות תפקוד הלב.' },
+    { term: 'גלוקומטר', def: 'מכשיר רפואי נייד המשמש למדידת רמת הסוכר (גלוקוז) בדם, לרוב באמצעות דקירה קטנה באצבע.' }
+  ]
+};
+
+const Header = () => (
+  <header className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-blue-100 shadow-[0_4px_30px_rgba(0,0,0,0.1)] py-3 px-4 md:px-8">
+    <div className="max-w-6xl mx-auto flex justify-between items-center">
+      
+      {/* צד ימין - פרטי קשר */}
+      <div className="flex flex-col items-start gap-1.5 text-sm">
+        <a href="tel:04-6828460" className="flex items-center gap-2 text-slate-700 hover:text-orange-500 transition-colors font-bold">
+          <div className="bg-blue-50 p-1.5 rounded-full text-blue-600 shadow-sm border border-blue-100">
+            <Phone className="w-3.5 h-3.5" />
+          </div>
+          <span dir="ltr">04-6828460</span>
+        </a>
+        <a href="mailto:siudm@gov.il" className="hidden sm:flex items-center gap-2 text-slate-700 hover:text-orange-500 transition-colors font-bold">
+          <div className="bg-blue-50 p-1.5 rounded-full text-blue-600 shadow-sm border border-blue-100">
+            <Mail className="w-3.5 h-3.5" />
+          </div>
+          <span>siudm@gov.il</span>
+        </a>
+      </div>
+
+      {/* צד שמאל - לוגואים */}
+      <div className="flex items-center gap-4 md:gap-6">
+        <div className="h-14 flex items-center justify-center hover:scale-105 transition-transform duration-300">
+          <img src="logo-ziv-updated.png" alt="לוגו המרכז הרפואי זיו" className="h-full object-contain drop-shadow-sm" />
+        </div>
+        <div className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 border-slate-100 shadow-md flex items-center justify-center bg-white shrink-0 hover:shadow-lg transition-shadow">
+          <img src="KA.png" alt="לוגו KA" className="w-full h-full object-cover" />
+        </div>
+      </div>
+      
+    </div>
+  </header>
+);
+
+const FlipCard = ({ image, name, role }) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  useEffect(() => {
+    // 1. Flip automatically after 1 second
+    const timer1 = setTimeout(() => {
+      setIsFlipped(true);
+    }, 1000);
+
+    // 2. Flip back to picture after 4.5 seconds
+    const timer2 = setTimeout(() => {
+      setIsFlipped(false);
+    }, 4500);
+
+    return () => { 
+      clearTimeout(timer1); 
+      clearTimeout(timer2); 
+    };
+  }, []);
+
+  return (
+    <div 
+      className="w-28 h-28 md:w-36 md:h-36 cursor-pointer group mx-auto mb-4"
+      style={{ perspective: '1000px' }}
+      onMouseEnter={() => setIsFlipped(true)}
+      onMouseLeave={() => setIsFlipped(false)}
+    >
+      <div 
+        className="relative w-full h-full transition-transform duration-1000 ease-out" 
+        style={{ 
+          transformStyle: 'preserve-3d', 
+          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' 
+        }}
+      >
+        {/* Front Face (Image) */}
+        <div 
+          className="absolute inset-0 w-full h-full rounded-full border-4 border-white shadow-[0_5px_20px_rgba(0,0,0,0.15)] overflow-hidden bg-slate-100"
+          style={{ backfaceVisibility: 'hidden' }}
+        >
+          <img src={image} alt={name} className="w-full h-full object-cover" />
+        </div>
+        
+        {/* Back Face (Role text) */}
+        <div 
+          className="absolute inset-0 w-full h-full rounded-full border-[3px] border-orange-400 shadow-[0_0_25px_rgba(249,115,22,0.5)] overflow-hidden bg-gradient-to-br from-blue-900 to-blue-700 flex flex-col items-center justify-center text-center p-2"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+        >
+          <span className="text-white font-extrabold text-[15px] md:text-lg leading-tight mb-1">{name}</span>
+          <div className="w-8 h-[2px] bg-orange-400 rounded-full mb-1"></div>
+          <span className="text-orange-100 text-xs md:text-sm font-medium leading-tight px-2">{role}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const HomeView = () => {
+  const [openDay, setOpenDay] = useState(1);
+
+  const toggleDay = (day) => {
+    setOpenDay(openDay === day ? null : day);
+  };
+
+  return (
+    <main className="flex-grow max-w-6xl mx-auto w-full p-4 md:p-8 flex flex-col gap-10 relative z-10">
+      
+      {/* Hero Section (Text floats directly on the shiny app background) */}
+      <section className="text-center pt-8 pb-4 relative group">
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-400 text-white text-sm font-extrabold rounded-full mb-8 shadow-[0_0_30px_rgba(249,115,22,0.4)] border border-orange-300/50 transform hover:scale-105 transition-transform cursor-default">
+            <Award className="w-4 h-4" />
+            תכנית הכשרה קלינית
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight drop-shadow-2xl tracking-tight text-white">
+            תחומי עיסוק ופעילות של כוח עזר <br className="hidden md:block"/> 
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-200 drop-shadow-lg">מיומן במערך האשפוז</span>
+          </h2>
+          
+          <p className="text-blue-100 max-w-3xl mx-auto leading-relaxed text-lg md:text-xl font-light drop-shadow-md">
+            הסיוע לאחות המוסמכת במתן טיפול בסיסי למטופל יפנה את זמנה לניהול הטיפול, עיסוק במיומנויות קליניות מתקדמות ופעילויות נוספות.
+          </p>
+        </div>
+      </section>
+
+      {/* Info Blocks */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        {/* Course Info Card */}
+        <div className="bg-white/95 backdrop-blur-2xl rounded-[2rem] p-8 shadow-2xl border border-white/20 hover:border-orange-300/50 hover:shadow-[0_8px_40px_rgba(249,115,22,0.15)] transition-all duration-300 flex flex-col justify-center relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-2 h-full bg-gradient-to-b from-blue-500 to-blue-800"></div>
+          <h3 className="text-2xl font-extrabold mb-6 flex items-center gap-3 text-blue-950">
+            <div className="p-3 bg-blue-100/60 text-blue-700 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+              <Calendar className="w-6 h-6" />
+            </div>
+            אודות ההכשרה
+          </h3>
+          <p className="text-slate-600 leading-relaxed mb-8 text-lg font-medium">
+            הטיפול במטופלים כרוניים ובמטופלים במצבים אקוטיים מורכבים במערך האשפוז דורש את התמקצעות האחות המוסמכת. הקורס נועד להכשיר כוח עזר מיומן לסייע בביצוע פעולות בסיסיות תוך יישום הנחיות משרד הבריאות.
+          </p>
+          <div className="flex flex-wrap gap-4 text-sm font-bold">
+            <div className="flex items-center gap-2 bg-blue-50 px-4 py-2.5 rounded-xl text-blue-900 border border-blue-100 shadow-sm">
+              <Clock className="w-4 h-4 text-orange-500" />
+              <span>120 שעות (5 מפגשים + 10 משמרות)</span>
+            </div>
+            <div className="flex items-center gap-2 bg-blue-50 px-4 py-2.5 rounded-xl text-blue-900 border border-blue-100 shadow-sm" dir="ltr">
+              <MapPin className="w-4 h-4 text-orange-500" />
+              <span>1.12.26 - 5.1.27</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Leaders Info Card */}
+        <div className="bg-white/95 backdrop-blur-2xl rounded-[2rem] p-8 shadow-2xl border border-white/20 hover:border-blue-400/50 hover:shadow-[0_8px_40px_rgba(59,130,246,0.2)] transition-all duration-300 text-center flex flex-col justify-center relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-2 h-full bg-gradient-to-b from-orange-400 to-orange-500"></div>
+          <h3 className="font-extrabold text-2xl mb-8 text-blue-950 flex items-center justify-center gap-3">
+            <div className="p-3 bg-orange-100/60 text-orange-600 rounded-xl group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300 shadow-sm">
+              <Users className="w-6 h-6" />
+            </div>
+            מובילות ההכשרה
+          </h3>
+          <div className="flex justify-center gap-8 md:gap-16 items-start">
+            <div className="text-center flex flex-col items-center">
+              <FlipCard 
+                image="sima.jpg" 
+                name="סימה אליהו" 
+                role="מרכזת הדרכה ופיתוח" 
+              />
+            </div>
+            <div className="text-center flex flex-col items-center">
+              <FlipCard 
+                image="adi.jpg" 
+                name="עדי טלבי" 
+                role="הנהלת האחיות" 
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Syllabus Accordion Section */}
+      <section className="bg-white/95 backdrop-blur-2xl rounded-[2rem] p-6 md:p-10 shadow-2xl border border-white/20 relative mt-4">
+        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-200">
+          <div className="p-4 bg-gradient-to-br from-blue-700 to-blue-900 rounded-2xl shadow-[0_5px_15px_rgba(29,78,216,0.3)] text-white">
+            <BookOpen className="w-8 h-8" />
+          </div>
+          <div>
+            <h3 className="text-3xl font-extrabold text-blue-950 tracking-tight">תכנית הלימודים</h3>
+            <p className="text-slate-500 font-bold mt-1">סילבוס קורס כוח עזר מיומן (5 ימי הדרכה)</p>
+          </div>
+        </div>
+
+        <div className="space-y-5">
+          {syllabusData.map((dayData) => (
+            <div key={dayData.day} className={`border rounded-2xl overflow-hidden transition-all duration-300 shadow-sm ${openDay === dayData.day ? 'border-blue-300 shadow-[0_8px_30px_rgb(0,0,0,0.08)] bg-white' : 'border-slate-200 bg-slate-50/80 hover:border-blue-200 hover:bg-white'}`}>
+              
+              <button 
+                onClick={() => toggleDay(dayData.day)}
+                className="w-full px-6 py-5 flex items-center justify-between focus:outline-none cursor-pointer group"
+              >
+                <div className="flex items-center gap-5">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg transition-all duration-300 shadow-sm ${openDay === dayData.day ? 'bg-gradient-to-br from-blue-700 to-blue-900 text-white shadow-blue-500/30' : 'bg-white text-blue-700 border border-blue-100 group-hover:bg-blue-50'}`}>
+                    {dayData.day}
+                  </div>
+                  <div className="text-right">
+                    <h4 className={`font-extrabold text-lg md:text-xl transition-colors ${openDay === dayData.day ? 'text-blue-900' : 'text-slate-800 group-hover:text-blue-700'}`}>
+                      {dayData.title}
+                    </h4>
+                    <span className="text-sm font-bold text-orange-600">{dayData.date}</span>
+                  </div>
+                </div>
+                <div className={`p-2 rounded-full transition-all duration-300 ${openDay === dayData.day ? 'bg-orange-100 text-orange-600' : 'bg-slate-100 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600'}`}>
+                  <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${openDay === dayData.day ? 'rotate-180' : ''}`} />
+                </div>
+              </button>
+              
+              <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openDay === dayData.day ? 'max-h-[3000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className="px-6 pb-6 pt-2">
+                  <div className="border-r-4 border-blue-100 pr-6 space-y-5">
+                    {dayData.lectures.map((lecture, idx) => (
+                      <div key={idx} className="relative group/lecture">
+                        {/* Timeline Dot */}
+                        <div className={`absolute -right-[34px] top-4 w-5 h-5 rounded-full border-[3px] border-white shadow-md transition-colors duration-300 ${lecture.isBreak ? 'bg-orange-500' : 'bg-blue-700 group-hover/lecture:bg-blue-500'}`}></div>
+                        
+                        <div className={`p-5 rounded-2xl border transition-all duration-300 ${lecture.isBreak ? 'bg-orange-50/50 border-orange-100' : 'bg-white border-slate-100 shadow-[0_2px_15px_rgb(0,0,0,0.03)] hover:shadow-[0_5px_20px_rgb(0,0,0,0.06)] hover:border-blue-200'}`}>
+                          
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                            <div className="flex items-center gap-3">
+                              <span className={`font-extrabold text-sm px-3 py-1 rounded-lg ${lecture.isBreak ? 'bg-orange-100 text-orange-700' : 'bg-blue-50 text-blue-800 border border-blue-100/50 shadow-sm'}`} dir="ltr">
+                                {lecture.time}
+                              </span>
+                            </div>
+                          </div>
+
+                          <h5 className={`font-bold text-lg mb-1 leading-snug ${lecture.isBreak ? 'text-orange-800' : 'text-blue-950'}`}>
+                            {lecture.subject}
+                          </h5>
+                          
+                          {!lecture.isBreak && lecture.instructor && (
+                            <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-slate-50 pt-4">
+                              <div className="flex items-center gap-3 text-sm">
+                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm">
+                                  <Users className="w-4 h-4 text-slate-500" />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-extrabold text-slate-700">{lecture.instructor}</span>
+                                  {lecture.role && (
+                                    <span className="text-slate-500 text-xs font-medium">{lecture.role}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+};
+
+export default function App() {
+  return (
+    <div className="min-h-screen font-sans flex flex-col relative overflow-x-hidden selection:bg-orange-500 selection:text-white" dir="rtl">
+      
+      {/* SHINY BLUE & ORANGE BACKGROUND */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-slate-900">
+         {/* Deep blue gradient base */}
+         <div className="absolute inset-0 bg-gradient-to-br from-blue-950 via-blue-900 to-slate-900 opacity-90"></div>
+         
+         {/* Glowing Orbs for the "Shiny" feel */}
+         <div className="absolute top-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-600/30 blur-[100px] md:blur-[140px]"></div>
+         <div className="absolute top-[20%] left-[-10%] w-[35vw] h-[35vw] rounded-full bg-orange-500/20 blur-[100px] md:blur-[130px]"></div>
+         <div className="absolute bottom-[-10%] right-[10%] w-[60vw] h-[60vw] rounded-full bg-blue-500/20 blur-[120px] md:blur-[160px]"></div>
+         <div className="absolute bottom-[40%] left-[30%] w-[25vw] h-[25vw] rounded-full bg-orange-400/15 blur-[80px] md:blur-[100px]"></div>
+      </div>
+
+      <div className="relative z-10 flex flex-col flex-grow">
+        <Header />
+        
+        <HomeView />
+      </div>
+    </div>
+  );
+}
